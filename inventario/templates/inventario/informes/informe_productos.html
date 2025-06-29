@@ -1,0 +1,215 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Informe de Productos{% endblock %}
+
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css_js/informes/informe_producto.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-file-alt"></i> Informe de Productos</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.tipo_informe.id_for_label }}" class="form-label">Tipo de Informe</label>
+                        {{ form.tipo_informe }}
+                        {% if form.tipo_informe.errors %}
+                        <div class="text-danger">
+                            {{ form.tipo_informe.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3" id="bodega-container">
+                        <label for="{{ form.bodega.id_for_label }}" class="form-label">Bodega</label>
+                        {{ form.bodega }}
+                        {% if form.bodega.errors %}
+                        <div class="text-danger">
+                            {{ form.bodega.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3" id="editorial-container" style="display: none;">
+                        <label for="{{ form.editorial.id_for_label }}" class="form-label">Editorial</label>
+                        {{ form.editorial }}
+                        {% if form.editorial.errors %}
+                        <div class="text-danger">
+                            {{ form.editorial.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Generar Informe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Resultados</h5>
+            </div>
+            <div class="card-body">
+                {% if resultados %}
+                    {% if form.cleaned_data.tipo_informe == 'todos' %}
+                        <h4>Cantidad de productos por bodega</h4>
+                        {% if form.cleaned_data.bodega %}
+                            <p>Bodega: {{ form.cleaned_data.bodega.nombre }}</p>
+                        {% endif %}
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Tipo</th>
+                                        <th>Editorial</th>
+                                        <th>Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in resultados %}
+                                    <tr>
+                                        <td>{{ item.producto.titulo }}</td>
+                                        <td>{{ item.producto.get_tipo_display }}</td>
+                                        <td>{{ item.producto.editorial.nombre }}</td>
+                                        <td>{{ item.cantidad }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No hay productos en esta bodega</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% elif form.cleaned_data.tipo_informe == 'tipo' %}
+                        <h4>Productos por tipo</h4>
+                        {% if form.cleaned_data.bodega %}
+                            <p>Bodega: {{ form.cleaned_data.bodega.nombre }}</p>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Libros</h5>
+                                        <h2 class="display-4">{{ resultados.Libros }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Revistas</h5>
+                                        <h2 class="display-4">{{ resultados.Revistas }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Enciclopedias</h5>
+                                        <h2 class="display-4">{{ resultados.Enciclopedias }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif form.cleaned_data.tipo_informe == 'editorial' %}
+                        <h4>Productos por editorial</h4>
+                        <p>Editorial: {{ form.cleaned_data.editorial.nombre }}</p>
+                        {% if form.cleaned_data.bodega %}
+                            <p>Bodega: {{ form.cleaned_data.bodega.nombre }}</p>
+                        {% endif %}
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Tipo</th>
+                                        <th>Autores</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for producto in resultados %}
+                                    <tr>
+                                        <td>{{ producto.titulo }}</td>
+                                        <td>{{ producto.get_tipo_display }}</td>
+                                        <td>
+                                            {% for autor in producto.autores.all %}
+                                            {{ autor.nombre }} {{ autor.apellido }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center">No hay productos de esta editorial</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="text-center mt-3">
+                        <button class="btn btn-primary" onclick="window.print()">
+                            <i class="fas fa-print"></i> Imprimir Informe
+                        </button>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Seleccione los filtros y genere el informe para ver los resultados.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Agregar clases de Bootstrap a los campos del formulario
+    document.addEventListener('DOMContentLoaded', function() {
+        const formFields = document.querySelectorAll('select');
+        formFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+        
+        // Manejar cambio de tipo de informe
+        const tipoInformeSelect = document.getElementById('{{ form.tipo_informe.id_for_label }}');
+        tipoInformeSelect.addEventListener('change', function() {
+            const tipoInforme = this.value;
+            const bodegaContainer = document.getElementById('bodega-container');
+            const editorialContainer = document.getElementById('editorial-container');
+            
+            // Mostrar/ocultar campos según el tipo de informe
+            if (tipoInforme === 'editorial') {
+                editorialContainer.style.display = 'block';
+                bodegaContainer.style.display = 'block';
+            } else {
+                editorialContainer.style.display = 'none';
+                bodegaContainer.style.display = 'block';
+            }
+        });
+        
+        // Disparar el evento change para configurar la vista inicial
+        tipoInformeSelect.dispatchEvent(new Event('change'));
+    });
+</script>
+{% endblock %}

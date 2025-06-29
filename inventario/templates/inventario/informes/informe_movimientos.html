@@ -1,0 +1,143 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Informe de Movimientos{% endblock %}
+
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css_js/informes/informe_movimiento.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-chart-line"></i> Informe de Movimientos</h1>
+</div>
+<div class="row informe-movimientos">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.fecha_inicio.id_for_label }}" class="form-label">Fecha Inicio</label>
+                        {{ form.fecha_inicio }}
+                        {% if form.fecha_inicio.errors %}
+                        <div class="text-danger">{{ form.fecha_inicio.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.fecha_fin.id_for_label }}" class="form-label">Fecha Fin</label>
+                        {{ form.fecha_fin }}
+                        {% if form.fecha_fin.errors %}
+                        <div class="text-danger">{{ form.fecha_fin.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.bodega_origen.id_for_label }}" class="form-label">Bodega Origen</label>
+                        {{ form.bodega_origen }}
+                        {% if form.bodega_origen.errors %}
+                        <div class="text-danger">{{ form.bodega_origen.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.bodega_destino.id_for_label }}" class="form-label">Bodega Destino</label>
+                        {{ form.bodega_destino }}
+                        {% if form.bodega_destino.errors %}
+                        <div class="text-danger">{{ form.bodega_destino.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Generar Informe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Resultados</h5>
+            </div>
+            <div class="card-body">
+                {% if resultados %}
+                    <h4>Movimientos registrados</h4>
+
+                    <div class="mb-3">
+                        <strong>Filtros aplicados:</strong>
+                        <ul>
+                            {% if form.cleaned_data.fecha_inicio %}
+                            <li>Fecha inicio: {{ form.cleaned_data.fecha_inicio|date:"d/m/Y" }}</li>
+                            {% endif %}
+                            {% if form.cleaned_data.fecha_fin %}
+                            <li>Fecha fin: {{ form.cleaned_data.fecha_fin|date:"d/m/Y" }}</li>
+                            {% endif %}
+                            {% if form.cleaned_data.bodega_origen %}
+                            <li>Bodega origen: {{ form.cleaned_data.bodega_origen.nombre }}</li>
+                            {% endif %}
+                            {% if form.cleaned_data.bodega_destino %}
+                            <li>Bodega destino: {{ form.cleaned_data.bodega_destino.nombre }}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Fecha</th>
+                                    <th>Origen</th>
+                                    <th>Destino</th>
+                                    <th>Usuario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for movimiento in resultados %}
+                                <tr>
+                                    <td>{{ movimiento.id }}</td>
+                                    <td>{{ movimiento.fecha|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ movimiento.bodega_origen.nombre }}</td>
+                                    <td>{{ movimiento.bodega_destino.nombre }}</td>
+                                    <td>{{ movimiento.usuario.username }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No hay movimientos registrados para los filtros seleccionados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button class="btn btn-primary" onclick="window.print()">
+                            <i class="fas fa-print"></i> Imprimir Informe
+                        </button>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Seleccione los filtros y genere el informe para ver los resultados.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formFields = document.querySelectorAll('select, input');
+        formFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}

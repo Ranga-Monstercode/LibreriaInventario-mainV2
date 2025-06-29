@@ -1,0 +1,277 @@
+{% extends 'inventario/base.html' %}
+
+{% block title %}Editar Producto{% endblock %}
+
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css_js/productos/crear_producto.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-edit"></i> Editar Producto</h1>
+    <p class="subtitle">Modifique la información del producto "{{ producto.titulo }}" en el inventario de la librería</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card form-card">
+            <div class="card-header">
+                <h5><i class="fas fa-edit"></i> Formulario de Edición</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-floating mb-3">
+                        {{ form.titulo }}
+                        <label for="{{ form.titulo.id_for_label }}">
+                            <i class="fas fa-book"></i> Título del Producto
+                        </label>
+                        {% if form.titulo.errors %}
+                        <div class="error-message">
+                            {{ form.titulo.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-floating mb-4">
+                        {{ form.tipo }}
+                        <label for="{{ form.tipo.id_for_label }}" class="form-label-spaced">
+                            <i class="fas fa-tags"></i> Tipo de Producto
+                        </label>
+                        {% if form.tipo.errors %}
+                        <div class="error-message">
+                            {{ form.tipo.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-floating mb-3">
+                        {{ form.descripcion }}
+                        <label for="{{ form.descripcion.id_for_label }}">
+                            <i class="fas fa-align-left"></i> Descripción
+                        </label>
+                        {% if form.descripcion.errors %}
+                        <div class="error-message">
+                            {{ form.descripcion.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-floating mb-3">
+                        {{ form.editorial }}
+                        <label for="{{ form.editorial.id_for_label }}">
+                            <i class="fas fa-building"></i> Editorial
+                        </label>
+                        {% if form.editorial.errors %}
+                        <div class="error-message">
+                            {{ form.editorial.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="authors-section mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-users"></i> Seleccionar Autores
+                        </label>
+                        {{ form.autores }}
+                        {% if form.autores.errors %}
+                        <div class="error-message">
+                            {{ form.autores.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                   
+                    <!-- Sección de edición de stock en bodegas -->
+                    <div class="stock-section mt-4">
+                        <h4 class="section-title">
+                            <i class="fas fa-warehouse"></i> {{ tiene_bodegas_asignadas|yesno:"Editar Stock en Bodegas,Asignar Stock en Bodegas" }}
+                        </h4>
+                        <p class="text-muted mb-3">
+                            {{ tiene_bodegas_asignadas|yesno:"Modifique la cantidad de productos por bodega,Defina la bodega y cantidad de productos a almacenar" }}
+                        </p>
+                        {{ formset.management_form }}
+                        <div class="formset-container">
+                            {% for f in formset %}
+                            <div class="stock-item card mb-3">
+                                <div class="card-body">
+                                    <!-- ⭐ AGREGAR ESTA LÍNEA - CAMPO ID OCULTO -->
+                                    {{ f.id }}
+                                    
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            {% if tiene_bodegas_asignadas %}
+                                                <!-- Modo edición: bodega ya asignada -->
+                                                <div class="bodega-info-container">
+                                                    <div class="bodega-display-center">
+                                                        <div class="bodega-name-badge bodega-assigned">
+                                                            <i class="fas fa-warehouse me-2"></i>
+                                                            <strong>{{ f.instance.bodega.nombre }}</strong>
+                                                            <span class="badge-status">
+                                                                <i class="fas fa-check-circle"></i>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Campo oculto para mantener la bodega -->
+                                                    {{ f.bodega.as_hidden }}
+                                                    {% if f.bodega.errors %}
+                                                    <div class="error-message mt-2">
+                                                        {{ f.bodega.errors }}
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% else %}
+                                                <!-- Modo creación: seleccionar bodega -->
+                                                <div class="form-floating">
+                                                    {{ f.bodega }}
+                                                    <label for="{{ f.bodega.id_for_label }}">
+                                                        <i class="fas fa-warehouse"></i> {{ f.bodega.label }}
+                                                    </label>
+                                                    {% if f.bodega.errors %}
+                                                    <div class="error-message">
+                                                        {{ f.bodega.errors }}
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                {{ f.cantidad }}
+                                                <label for="{{ f.cantidad.id_for_label }}">
+                                                    <i class="fas fa-sort-numeric-up"></i> {{ f.cantidad.label }}
+                                                </label>
+                                                {% if f.cantidad.errors %}
+                                                <div class="error-message">
+                                                    {{ f.cantidad.errors }}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if tiene_bodegas_asignadas %}
+                                    <!-- Información adicional para modo edición -->
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <div class="stock-info-badge">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <span class="text-muted">
+                                                    Stock actual: <strong>{{ f.instance.cantidad|default:"0" }} unidades</strong>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mt-4">
+                        <a href="{% url 'listar_productos' %}" class="btn btn-secondary btn-action">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-action">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card info-card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Información del Producto</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h6 class="text-info mb-3">
+                        <i class="fas fa-clipboard-list"></i> Datos Actuales:
+                    </h6>
+                    <ul class="info-list">
+                        <li><strong>Tipo:</strong> {{ producto.get_tipo_display }}</li>
+                        <li><strong>Editorial:</strong> {{ producto.editorial.nombre }}</li>
+                        <li><strong>Bodegas asignadas:</strong>
+                            {% if producto.inventariobodega_set.exists %}
+                                <ul class="nested-list">
+                                {% for inv in producto.inventariobodega_set.all %}
+                                    <li class="nested-item">
+                                        <span class="bodega-mini-badge">
+                                            <i class="fas fa-warehouse"></i>
+                                            {{ inv.bodega.nombre }}
+                                        </span>
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="no-data">No hay bodegas asignadas</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="text-warning mb-3">
+                        <i class="fas fa-exclamation-triangle"></i> Importante:
+                    </h6>
+                    <p class="small text-muted">
+                        <strong>Cambios de Stock:</strong> Al modificar la cantidad, se actualizará el inventario actual.
+                    </p>
+                    {% if not tiene_bodegas_asignadas %}
+                    <p class="small text-muted">
+                        <strong>Selección de Bodega:</strong> Una vez asignada la bodega, no podrá cambiarla desde esta vista.
+                    </p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="text-success mb-3">
+                        <i class="fas fa-lightbulb"></i> Consejos Útiles:
+                    </h6>
+                    <p class="small text-muted">
+                        <strong>Autores:</strong> Puede modificar los autores asociados al producto.
+                    </p>
+                    <p class="small text-muted">
+                        <strong>Descripción:</strong> Actualice la descripción para mantener la información relevante.
+                    </p>
+                    {% if tiene_bodegas_asignadas %}
+                    <p class="small text-muted">
+                        <strong>Stock:</strong> Los cambios de cantidad se reflejarán inmediatamente en el inventario.
+                    </p>
+                    {% endif %}
+                </div>
+                
+                <div class="alert-custom">
+                    <i class="fas fa-pen-fancy"></i>
+                    <strong>¿Necesitas un nuevo autor?</strong><br>
+                    Puede <a href="{% url 'crear_autor' %}">crear un nuevo autor</a> desde aquí.
+                </div>
+                <div class="alert-custom">
+                    <i class="fas fa-building"></i>
+                    <strong>¿No encuentra la editorial?</strong><br>
+                    Puede <a href="{% url 'crear_editorial' %}">crear una nueva editorial</a> desde aquí.
+                </div>
+                
+                <div class="alert-custom">
+                    <i class="fas fa-warehouse"></i>
+                    <strong>¿Necesita una nueva bodega?</strong><br>
+                    Puede <a href="{% url 'crear_bodega' %}">crear una nueva bodega</a> para almacenamiento.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'css_js/productos/crear_producto.js' %}"></script>
+{% endblock %}
