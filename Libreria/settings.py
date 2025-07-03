@@ -112,10 +112,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
-    BASE_DIR / 'inventario' / 'static',
+   
 ]
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Configuración de login
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
