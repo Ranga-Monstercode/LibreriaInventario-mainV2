@@ -1,0 +1,4 @@
+gunicorn libreria.wsgi:application
+
+
+

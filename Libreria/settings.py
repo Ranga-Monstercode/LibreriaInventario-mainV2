@@ -74,7 +74,7 @@ WSGI_APPLICATION = 'Libreria.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -85,8 +85,17 @@ DATABASES = {
         'PORT': '3306',
     }
 }
-
-
+"""
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('DB_NAME'),       # Ej: LIBRERIA
+        'USER': os.environ.get('DB_USER'),       # Ej: admin
+        'PASSWORD': os.environ.get('DB_PASSWORD'),  # Ej: 12345678
+        'HOST': os.environ.get('DB_HOST'),       # Ej: proyecto2.chagne2ipvx4.us-east-1.rds.amazonaws.com
+        'PORT': os.environ.get('DB_PORT', '3306'),
+    }
+}
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 

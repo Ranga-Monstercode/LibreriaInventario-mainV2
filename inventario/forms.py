@@ -424,32 +424,7 @@ class ProductoForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'rows': 3}),
         }
     
-    def clean(self):
-        cleaned_data = super().clean()
-        autores = cleaned_data.get('autores')
-        nuevo_autor_nombre = cleaned_data.get('nuevo_autor_nombre')
-        nuevo_autor_apellido = cleaned_data.get('nuevo_autor_apellido')
-        
-        if not autores and not (nuevo_autor_nombre and nuevo_autor_apellido):
-            raise forms.ValidationError("Debe seleccionar al menos un autor existente o crear uno nuevo.")
-        
-        return cleaned_data
     
-    def save(self, commit=True):
-        producto = super().save(commit=commit)
-        
-        if commit:
-            nuevo_autor_nombre = self.cleaned_data.get('nuevo_autor_nombre')
-            nuevo_autor_apellido = self.cleaned_data.get('nuevo_autor_apellido')
-            
-            if nuevo_autor_nombre and nuevo_autor_apellido:
-                nuevo_autor, created = Autor.objects.get_or_create(
-                    nombre=nuevo_autor_nombre,
-                    apellido=nuevo_autor_apellido
-                )
-                producto.autores.add(nuevo_autor)
-        
-        return producto
     
 class BodegaForm(forms.ModelForm):
     class Meta:
@@ -625,14 +600,14 @@ class InventarioBodegaForm(forms.ModelForm):
         widgets = {
             'bodega': forms.Select(attrs={
                 'class': 'form-select',
-                'required': True
+                'required': False  # Cambiado a False
             }),
             'cantidad': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0',
                 'step': '1',
-                'placeholder': 'Cantidad',
-                'required': True
+                'placeholder': 'Cantidad (opcional)',
+                'required': False  # Cambiado a False
             })
         }
         labels = {
@@ -640,15 +615,15 @@ class InventarioBodegaForm(forms.ModelForm):
             'cantidad': 'Cantidad en Stock'
         }
         help_texts = {
-            'bodega': 'Seleccione la bodega donde se almacenará el producto',
-            'cantidad': 'Cantidad de productos a almacenar (debe ser 0 o mayor)'
+            'bodega': 'Seleccione la bodega donde se almacenará el producto (opcional)',
+            'cantidad': 'Cantidad de productos a almacenar (opcional, puede dejarlo vacío)'
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Hacer los campos obligatorios
-        self.fields['bodega'].required = True
-        self.fields['cantidad'].required = True
+        # Hacer los campos OPCIONALES
+        self.fields['bodega'].required = False  # Cambiado a False
+        self.fields['cantidad'].required = False  # Cambiado a False
         
         # Filtrar solo bodegas activas si es necesario
         self.fields['bodega'].queryset = Bodega.objects.all().order_by('nombre')
@@ -661,9 +636,8 @@ class InventarioBodegaForm(forms.ModelForm):
 
     def clean_cantidad(self):
         cantidad = self.cleaned_data.get('cantidad')
-        if cantidad is not None:
-            if cantidad < 0:
-                raise forms.ValidationError('La cantidad no puede ser negativa.')
+        if cantidad is not None and cantidad < 0:
+            raise forms.ValidationError('La cantidad no puede ser negativa.')
         return cantidad
 
     def clean(self):
@@ -671,10 +645,13 @@ class InventarioBodegaForm(forms.ModelForm):
         bodega = cleaned_data.get('bodega')
         cantidad = cleaned_data.get('cantidad')
         
-        # Validaciones adicionales si es necesario
-        if bodega and cantidad is not None:
-            # Aquí puedes agregar validaciones específicas
-            pass
+        # Solo validar si se proporcionaron ambos campos
+        if bodega and cantidad is None:
+            # Si seleccionó bodega pero no cantidad, poner cantidad en 0
+            cleaned_data['cantidad'] = 0
+        elif cantidad is not None and cantidad > 0 and not bodega:
+            # Si puso cantidad pero no seleccionó bodega, es error
+            raise forms.ValidationError('Debe seleccionar una bodega si especifica una cantidad.')
             
         return cleaned_data
 

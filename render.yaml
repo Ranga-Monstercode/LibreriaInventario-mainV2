@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: libreriav2
+    env: python
+    region: oregon  # puedes dejarlo o cambiarlo a frankfurt si estás en Europa
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn libreria.wsgi:application"
+    envVars:
+      - key: DB_NAME
+        value: LIBRERIA
+      - key: DB_USER
+        value: admin
+      - key: DB_PASSWORD
+        value: 12345678
+      - key: DB_HOST
+        value: database-1.cbykauwrpyad.us-east-1.rds.amazonaws.com
