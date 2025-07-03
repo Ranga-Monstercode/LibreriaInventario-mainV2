@@ -16,7 +16,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -24,13 +23,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-m3!9mg3le)pqhq3mmo6ouqebkh*@5$xjmnd0ql!x@m6s5p9ns2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
-
+# Configuración para Render
+ALLOWED_HOSTS = ['*'] if DEBUG else [
+    'https://libreriainventario-mainv2.onrender.com',  # Cambia por tu dominio de Render
+    'localhost',
+    '127.0.0.1'
+]
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,16 +45,16 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',  # ← esta es la que menciona el error
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',  # ← también esencial
-    'django.contrib.messages.middleware.MessageMiddleware',     # ← y esta también
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
-ROOT_URLCONF = 'Libreria.urls'
+# ✅ CORREGIDO: minúscula para coincidir con el nombre de la carpeta
+ROOT_URLCONF = 'libreria.urls'
 
 TEMPLATES = [
     {
@@ -69,33 +71,22 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Libreria.wsgi.application'
-
+WSGI_APPLICATION = 'libreria.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-"""
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'libreria',       
-        'USER': 'root',       
-        'PASSWORD': '',  
-        'HOST': 'localhost',       
-        'PORT': '3306',
-    }
-}
-"""
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME'),       # Ej: LIBRERIA
-        'USER': os.environ.get('DB_USER'),       # Ej: admin
-        'PASSWORD': os.environ.get('DB_PASSWORD'),  # Ej: 12345678
-        'HOST': os.environ.get('DB_HOST'),       # Ej: proyecto2.chagne2ipvx4.us-east-1.rds.amazonaws.com
+        'NAME': os.environ.get('DB_NAME', 'libreria'),
+        'USER': os.environ.get('DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
         'PORT': os.environ.get('DB_PORT', '3306'),
     }
 }
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -108,24 +99,20 @@ CACHES = {
     }
 }
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'America/Santiago'
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
@@ -137,5 +124,4 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
