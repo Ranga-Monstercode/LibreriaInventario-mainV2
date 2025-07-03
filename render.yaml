@@ -30,5 +30,5 @@ services:
         value: Libreria.settings
     postdeploy: |
       python manage.py migrate
-      python crear_superusuario.py
+      python create_superuser.py
 
