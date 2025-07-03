@@ -6,7 +6,7 @@ services:
     plan: free
     rootDir: .
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn libreria.wsgi:application"
+    startCommand: "python debug_structure.py && sleep 300"  # Para ver el output
     envVars:
       - key: DB_NAME
         value: LIBRERIA
@@ -16,4 +16,9 @@ services:
         value: 12345678
       - key: DB_HOST
         value: proyecto.chagne2ipvx4.us-east-1.rds.amazonaws.com
+      - key: DEBUG
+        value: False
+      - key: PYTHON_VERSION
+        value: 3.11.4
+
 
