@@ -26,11 +26,7 @@ SECRET_KEY = 'django-insecure-m3!9mg3le)pqhq3mmo6ouqebkh*@5$xjmnd0ql!x@m6s5p9ns2
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 # Configuración para Render
-ALLOWED_HOSTS = ['*'] if DEBUG else [
-    'https://libreriainventario-mainv2.onrender.com',  # Cambia por tu dominio de Render
-    'localhost',
-    '127.0.0.1'
-]
+ALLOWED_HOSTS = ['*'] 
 
 # Application definition
 INSTALLED_APPS = [
