@@ -6,7 +6,7 @@ services:
     plan: free
     rootDir: .
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python debug_structure.py && sleep 300"  # Para ver el output
+    startCommand: "gunicorn Libreria.wsgi:application --bind 0.0.0.0:$PORT"  # ✅ Con mayúscula
     envVars:
       - key: DB_NAME
         value: LIBRERIA
@@ -20,5 +20,3 @@ services:
         value: False
       - key: PYTHON_VERSION
         value: 3.11.4
-
-

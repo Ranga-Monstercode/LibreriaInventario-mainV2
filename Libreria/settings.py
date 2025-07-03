@@ -50,7 +50,7 @@ MIDDLEWARE = [
 ]
 
 # ✅ CORREGIDO: minúscula para coincidir con el nombre de la carpeta
-ROOT_URLCONF = 'libreria.urls'
+ROOT_URLCONF = 'Libreria.urls'
 
 TEMPLATES = [
     {
