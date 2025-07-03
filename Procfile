@@ -1,1 +1,1 @@
-web: gunicorn libreria.wsgi:application
+gunicorn libreria.wsgi:application
