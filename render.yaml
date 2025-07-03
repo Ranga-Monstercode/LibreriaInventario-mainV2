@@ -6,7 +6,7 @@ services:
     plan: free
     rootDir: .
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn Libreria.wsgi:application --bind 0.0.0.0:$PORT"  # ✅ Con mayúscula
+    startCommand: "gunicorn Libreria.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DB_NAME
         value: LIBRERIA
@@ -20,3 +20,15 @@ services:
         value: False
       - key: PYTHON_VERSION
         value: 3.11.4
+      - key: DJANGO_SUPERUSER_USERNAME
+        value: admin
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: admin@example.com
+      - key: DJANGO_SUPERUSER_PASSWORD
+        value: admin123
+      - key: DJANGO_SETTINGS_MODULE
+        value: Libreria.settings
+    postdeploy: |
+      python manage.py migrate
+      python crear_superusuario.py
+
