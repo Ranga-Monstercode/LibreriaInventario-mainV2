@@ -5,8 +5,8 @@ services:
     region: oregon
     plan: free
     rootDir: .
-    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python create_superuser.py && python manage.py collectstatic --noinput"
-    startCommand: "gunicorn Libreria.wsgi:application --bind 0.0.0.0:$PORT"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "./start.sh"
     envVars:
       - key: DB_NAME
         value: LIBRERIA

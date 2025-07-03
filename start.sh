@@ -7,6 +7,9 @@ python manage.py makemigrations
 echo "=== Ejecutando migraciones ==="
 python manage.py migrate --noinput
 
+echo "=== Creando superusuario ==="
+python create_superuser.py
+
 echo "=== Recolectando archivos estáticos ==="
 python manage.py collectstatic --noinput --clear
 
