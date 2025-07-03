@@ -4,7 +4,7 @@ services:
     env: python
     region: oregon  # puedes dejarlo o cambiarlo a frankfurt si estás en Europa
     plan: free
-    buildCommand: "pip install -r requeriments.txt"
+    buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn libreria.wsgi:application"
     envVars:
       - key: DB_NAME
