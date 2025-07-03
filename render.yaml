@@ -5,10 +5,7 @@ services:
     region: oregon
     plan: free
     rootDir: .
-    buildCommand: |
-      pip install -r requirements.txt
-      python manage.py migrate
-      python create_superuser.py
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python create_superuser.py && python manage.py collectstatic --noinput"
     startCommand: "gunicorn Libreria.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DB_NAME
@@ -31,5 +28,6 @@ services:
         value: admin123
       - key: DJANGO_SETTINGS_MODULE
         value: Libreria.settings
+
 
 
